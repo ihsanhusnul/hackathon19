@@ -10,6 +10,8 @@ import Foundation
 import CoreLocation
 import CoreBluetooth
 
+let MitraIDS: [String] = ["2", "4008756"]
+
 protocol BeaconManagerDelegate: class {
     func onDetected(beacons: [BLBeacon])
     func onEnter(beacons: [BLBeacon])
@@ -19,9 +21,11 @@ protocol BeaconManagerDelegate: class {
 class BeaconManager: NSObject {
     static var shared: BeaconManager = BeaconManager()
     fileprivate var delegate: BeaconManagerDelegate?
-    fileprivate var hasBeaconsDetected: Bool = false
     
-    lazy var defaultRegion: CLBeaconRegion = self.createDefaultRegion()
+    fileprivate var hasBeaconsDetected: Bool = false
+    fileprivate var hasExited: Bool = false
+    fileprivate var tryRangingReached: Int = 0
+    
     var detectedBeacons: [BLBeacon] = []
     
     
@@ -33,9 +37,7 @@ class BeaconManager: NSObject {
     
     fileprivate var beacons: [CLBeacon] = []
     
-    private override init() {
-        
-    }
+    private override init() { }
     
     func start(delegate: BeaconManagerDelegate) {
         self.delegate = delegate
@@ -44,29 +46,44 @@ class BeaconManager: NSObject {
         
         switch CLLocationManager.authorizationStatus() {
         case .authorizedAlways, .authorizedWhenInUse:
-            locationManager.startMonitoring(for: defaultRegion)
+            locationManager.startMonitoringSignificantLocationChanges()
+            loadBeacons()
             
         default:
             print("location not allowed!")
         }
     }
     
-    func stop() {
-        locationManager.stopMonitoring(for: defaultRegion)
-        locationManager.startMonitoring(for: defaultRegion)
+    func reset() {
+        hasBeaconsDetected = false
+        detectedBeacons = []
+        
+        for mitraID in MitraIDS {
+            let beaconRegion = createBeaconRegionBy(identifier: mitraID)
+            locationManager.stopMonitoring(for: beaconRegion)
+            locationManager.stopRangingBeacons(in: beaconRegion)
+        }
     }
     
-    func createDefaultRegion() -> CLBeaconRegion {
+    func loadBeacons() {
+        for mitraID in MitraIDS {
+            let beaconRegion = createBeaconRegionBy(identifier: mitraID)
+            locationManager.startMonitoring(for: beaconRegion)
+            locationManager.startRangingBeacons(in: beaconRegion)
+        }
+    }
+    
+    func createBeaconRegionBy(identifier: String) -> CLBeaconRegion {
         let defaultUUID: UUID = UUID(uuidString: "97B6ED29-4357-4F9A-8443-365394261E15")!
         let region: CLBeaconRegion = CLBeaconRegion(proximityUUID: defaultUUID,
-                                                    identifier: "")
+                                                    identifier: identifier)
         region.notifyEntryStateOnDisplay = true
         region.notifyOnEntry = true
         region.notifyOnExit = true
         return region
     }
     
-    @objc func requestStateDelayed(region: CLRegion) {
+    @objc func requestStateDelayed(region: CLBeaconRegion) {
         locationManager.requestState(for: region)
     }
     
@@ -75,24 +92,48 @@ class BeaconManager: NSObject {
             detectedBeacons.append(
                 BLBeacon(regionIdentifier: inRegion.identifier,
                          UUID: beacon.proximityUUID,
-                         major: beacon.major.intValue,
-                         minor: beacon.minor.intValue,
+                         major: beacon.major.int16Value,
+                         minor: beacon.minor.int16Value,
                          state: nil,
                          detectedTime: Date(),
                          proximity: beacon.proximity.rawValue,
                          accuracy: beacon.accuracy
                 )
             )
+            locationManager.stopRangingBeacons(in: inRegion)
         }
         
         if !detectedBeacons.isEmpty && !hasBeaconsDetected {
+            if hasExited {
+                delegate?.onEnter(beacons: detectedBeacons)
+            } else {
+                delegate?.onDetected(beacons: detectedBeacons)
+            }
+            
             hasBeaconsDetected = true
-            delegate?.onDetected(beacons: detectedBeacons)
         }
+    }
+    
+    func checkExitedBeaconsFor(region: CLBeaconRegion) {
+        let exitedBeacons = detectedBeacons.filter { $0.UUID == region.proximityUUID }
+        if !exitedBeacons.isEmpty {
+            delegate?.onExit(beacons: exitedBeacons)
+        }
+        
+        hasExited = true
+        locationManager.stopRangingBeacons(in: region)
     }
 }
 
 extension BeaconManager: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+        print("didExitRegion")
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+        print("didEnterRegion")
+    }
+    
     func locationManager(_ manager: CLLocationManager, rangingBeaconsDidFailFor region: CLBeaconRegion, withError error: Error) {
         print(error.localizedDescription)
     }
@@ -100,29 +141,39 @@ extension BeaconManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didStartMonitoringFor region: CLRegion) {
         print("start!")
         
-        //perform(#selector(requestStateDelayed(region:)), with: region, afterDelay: 1)
-        requestStateDelayed(region: region)
+        perform(#selector(requestStateDelayed(region:)), with: region, afterDelay: 1)
+//        requestStateDelayed(region: (region as! CLBeaconRegion))
     }
     
     func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
+        print("didRangeBeacons: \(region.identifier)")
         checkDetected(beacons: beacons, inRegion: region)
     }
     
     func locationManager(_ manager: CLLocationManager, didDetermineState state: CLRegionState, for region: CLRegion) {
         guard let _region = region as? CLBeaconRegion else { return }
         
+        print("\n \((region as! CLBeaconRegion))")
+        
         switch state {
         case .inside:
             print("inside")
             manager.startRangingBeacons(in: _region)
             
-        case .outside:
-            print("outside")
-            //manager.stopMonitoring(for: _region)
-            //manager.stopRangingBeacons(in: region)
+        case .outside, .unknown:
+            if state == .outside {
+                print("outside")
+            } else {
+                print("unknown")
+            }
             
-        default:
-            print("unknown")
+            //tryRangingReached += 1
+            //if tryRangingReached > 2, state == .outside {
+            if state == .outside {
+                checkExitedBeaconsFor(region: (region as! CLBeaconRegion))
+            } else {
+                manager.startRangingBeacons(in: _region)
+            }
         }
     }
 }

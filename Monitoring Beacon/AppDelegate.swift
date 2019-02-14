@@ -51,7 +51,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         application.open(URL(string: "https://m.bukalapak.com/mitra-terdekat/agents/4008756")!,
-                         options: [:], completionHandler: nil)
+                         options: [:],
+                         completionHandler: nil)
     }
 }
 

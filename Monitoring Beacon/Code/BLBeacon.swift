@@ -11,8 +11,8 @@ import Foundation
 class BLBeacon {
     var regionIdentifier: String = ""
     var UUID: UUID?
-    var major: Int = 0
-    var minor: Int = 0
+    var major: Int16 = 0
+    var minor: Int16 = 0
     var state: String?
     var detectedTime: Date?
     var proximity: Int = 0
@@ -20,8 +20,8 @@ class BLBeacon {
     
     init(regionIdentifier: String,
          UUID: UUID?,
-         major: Int,
-         minor: Int,
+         major: Int16,
+         minor: Int16,
          state: String?,
          detectedTime: Date?,
          proximity: Int,

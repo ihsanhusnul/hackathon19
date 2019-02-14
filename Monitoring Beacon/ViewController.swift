@@ -23,11 +23,6 @@ class ViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "refresh",
-                                                            style: .plain,
-                                                            target: self,
-                                                            action: #selector(didTapRefresh))
-        
         BeaconManager.shared.start(delegate: self)
     }
     
@@ -49,11 +44,10 @@ class ViewController: UITableViewController {
         
         UIApplication.shared.applicationIconBadgeNumber = 0
         
-        BeaconManager.shared.stop()
-        BeaconManager.shared.start(delegate: self)
+        BeaconManager.shared.reset()
     }
     
-    private func localPushNotif(mitraID: Int, distance: Double) {
+    private func localPushNotif(mitraID: String, distance: Double) {
         let distanceInMeter = String(format: "%.2f", distance)
         
         let content = UNMutableNotificationContent()
@@ -69,18 +63,25 @@ class ViewController: UITableViewController {
         UIApplication.shared.applicationIconBadgeNumber += 1
     }
     
-    func localAlert(mitraID: Int, distance: Double) {
+    func localAlert(mitraID: String, distance: Double) {
         let urlString = "https://m.bukalapak.com/mitra-terdekat/agents/\(mitraID)"
         let distanceInMeter = String(format: "%.2f", distance)
         
         let control = UIAlertController(title: "Hi, Kami dari Warung \(mitraID)",
             message: "Jangan lupa untuk mengunjungi mitra bukalapak \(distanceInMeter) meter dari anda",
             preferredStyle: .alert)
+        
         control.addAction(
             UIAlertAction(title: "Visit", style: .default, handler: { (_) in
-                UIApplication().open(URL(string: urlString)!,
-                                     options: [:],
-                                     completionHandler: nil)
+                UIApplication.shared.open(URL(string: urlString)!,
+                                          options: [:],
+                                          completionHandler: nil)
+            })
+        )
+        
+        control.addAction(
+            UIAlertAction(title: "Dismiss", style: .destructive, handler: { (_) in
+                control.dismiss(animated: true, completion: nil)
             })
         )
         present(control, animated: true, completion: nil)
@@ -94,29 +95,37 @@ class ViewController: UITableViewController {
 
 
 extension ViewController {
-    @objc func didTapRefresh() {
-        
+    func alert(title: String, message: String) {
+        let control = UIAlertController(title: title,
+                                        message: message,
+                                        preferredStyle: .alert)
+        control.addAction(
+            UIAlertAction(title: "OK", style: .default, handler: { (_) in
+                control.dismiss(animated: true, completion: nil)
+            })
+        )
+        present(control, animated: true, completion: nil)
     }
     
     func showPushNotifIfNotYet() {
-        var majors: [Int] = []
-        if let array = UserDefaults.standard.array(forKey: kListMajorsLocalPush) as? [Int] {
-            majors = array
+        var IDS: [String] = []
+        if let array = UserDefaults.standard.array(forKey: kListMajorsLocalPush) as? [String] {
+            IDS = array
         }
         
         for beacon in beacons {
-            if !majors.contains(beacon.major) {
-                localPushNotif(mitraID: beacon.major,
+            if !IDS.contains(beacon.regionIdentifier) {
+                localPushNotif(mitraID: beacon.regionIdentifier,
                                    distance: beacon.accuracy)
                 
-                alertLocal(mitraID: beacon.major,
+                localAlert(mitraID: beacon.regionIdentifier,
                            distance: beacon.accuracy)
                 
-                majors.append(beacon.major)
+                IDS.append(beacon.regionIdentifier)
             }
         }
         
-        UserDefaults.standard.set(majors, forKey: kListMajorsLocalPush)
+        UserDefaults.standard.set(IDS, forKey: kListMajorsLocalPush)
     }
 }
 
@@ -133,13 +142,21 @@ extension ViewController: BeaconManagerDelegate {
     func onEnter(beacons: [BLBeacon]) {
         print("onEnter")
         print(beacons)
+        
+        let majors = beacons.map {"\($0.major)"}
+        alert(title: "onEnter", message: majors.joined(separator: ", "))
     }
     
     func onExit(beacons: [BLBeacon]) {
         print("onExit")
         print(beacons)
+        
+        let majors = beacons.map {"\($0.major)"}
+        alert(title: "onExit", message: majors.joined(separator: ", "))
     }
 }
+
+
 
 
 

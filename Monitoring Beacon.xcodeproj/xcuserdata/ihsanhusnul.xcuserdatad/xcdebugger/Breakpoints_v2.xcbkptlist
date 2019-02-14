@@ -9,13 +9,29 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Monitoring Beacon/ViewController.swift"
-            timestampString = "571833161.120303"
+            filePath = "Monitoring Beacon/AppDelegate.swift"
+            timestampString = "571837165.968406"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "86"
-            endingLineNumber = "86"
-            landmarkName = "showPushNotifIfNotYet()"
+            startingLineNumber = "53"
+            endingLineNumber = "53"
+            landmarkName = "application(_:didReceiveRemoteNotification:fetchCompletionHandler:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Monitoring Beacon/Code/BeaconManager.swift"
+            timestampString = "571843217.511254"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "164"
+            endingLineNumber = "164"
+            landmarkName = "locationManager(_:didDetermineState:for:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
