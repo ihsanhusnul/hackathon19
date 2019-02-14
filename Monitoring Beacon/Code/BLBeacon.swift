@@ -35,4 +35,8 @@ class BLBeacon {
         self.proximity = proximity
         self.accuracy = accuracy
     }
+    
+    func distance() -> String {
+        return String(format: "%.2f", accuracy)
+    }
 }
