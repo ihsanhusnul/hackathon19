@@ -10,7 +10,7 @@ import Foundation
 import CoreLocation
 import CoreBluetooth
 
-let MitraIDS: [String] = ["4008756"]
+let MitraIDS: [String] = ["2"]
 
 protocol BeaconManagerDelegate: class {
     func onDetected(beacons: [BLBeacon])
@@ -24,7 +24,6 @@ class BeaconManager: NSObject {
     
     fileprivate var hasBeaconsDetected: Bool = false
     fileprivate var hasExited: Bool = false
-    fileprivate var tryRangingReached: Int = 0
     
     var detectedBeacons: [BLBeacon] = []
     
@@ -172,14 +171,9 @@ extension BeaconManager: CLLocationManagerDelegate {
                 print("unknown")
             }
             
-//            tryRangingReached += 1
-//            if tryRangingReached > 2, state == .outside {
             if state == .outside {
                 checkBeaconsFor(region: (region as! CLBeaconRegion), isEntered: false)
             }
-//            else {
-//                manager.startRangingBeacons(in: _region)
-//            }
         }
     }
 }

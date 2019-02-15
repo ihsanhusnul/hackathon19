@@ -47,43 +47,21 @@ class ViewController: UITableViewController {
         BeaconManager.shared.reset()
     }
     
-    private func localPushNotif(notifID: String, title: String, body: String) {
+    private func localPushNotif(notifID: String, title: String, body: String, category: String) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
         content.sound = UNNotificationSound.default
+        content.categoryIdentifier = category
         
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1.0, repeats: false)
-        let request = UNNotificationRequest(identifier: "notification-warung",
+        let request = UNNotificationRequest(identifier: "notification-warung \(Int.random(in: 0 ..< 100))",
                                             content: content,
                                             trigger: trigger)
         UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
         
         UIApplication.shared.applicationIconBadgeNumber += 1
     }
-    
-//    func localAlert(mitraID: String, distance: Double) {
-//        let urlString = "https://m.bukalapak.com/mitra-terdekat/agents/\(mitraID)"
-//
-//        let control = UIAlertController(title: "Hi, Kami dari Warung \(mitraID)",
-//            message: "Jangan lupa untuk mengunjungi mitra bukalapak \(distanceInMeter) meter dari anda",
-//            preferredStyle: .alert)
-//
-//        control.addAction(
-//            UIAlertAction(title: "Visit", style: .default, handler: { (_) in
-//                UIApplication.shared.open(URL(string: urlString)!,
-//                                          options: [:],
-//                                          completionHandler: nil)
-//            })
-//        )
-//
-//        control.addAction(
-//            UIAlertAction(title: "Dismiss", style: .destructive, handler: { (_) in
-//                control.dismiss(animated: true, completion: nil)
-//            })
-//        )
-//        present(control, animated: true, completion: nil)
-//    }
     
     func setTableWith(beacons: [BLBeacon]) {
         self.beacons = beacons
@@ -118,10 +96,8 @@ extension ViewController {
                 let body = "Jangan lupa untuk mengunjungi mitra bukalapak \(beacon.distance()) meter dari anda"
                 localPushNotif(notifID: "onDetect-\(beacon.regionIdentifier)",
                                title: title,
-                               body: body)
-                
-//                localAlert(mitraID: beacon.regionIdentifier,
-//                           distance: beacon.accuracy)
+                               body: body,
+                               category: "detected")
                 
                 IDS.append(beacon.regionIdentifier)
             }
@@ -133,13 +109,15 @@ extension ViewController {
     func showNotifHi(beacon: BLBeacon) {
         localPushNotif(notifID: "onEnter-\(beacon.regionIdentifier)",
             title: "Selamat Datang di Warung \(beacon.regionIdentifier)",
-            body: "Jangan lupa untuk mengunjungi mitra bukalapak \(beacon.distance()) meter dari anda")
+            body: "Jangan lupa untuk mengunjungi mitra bukalapak \(beacon.distance()) meter dari anda",
+        category: "hi")
     }
     
     func showNotifBye(beacon: BLBeacon) {
         localPushNotif(notifID: "onExit-\(beacon.regionIdentifier)",
             title: "Terima Kasih telah mengunjungi Warung \(beacon.regionIdentifier)",
-            body: "Jangan lupa untuk mengunjungi mitra bukalapak \(beacon.distance()) meter dari anda")
+            body: "Jangan lupa untuk mengunjungi mitra bukalapak \(beacon.distance()) meter dari anda",
+        category: "bye")
     }
 }
 
@@ -158,9 +136,6 @@ extension ViewController: BeaconManagerDelegate {
         print(beacons)
         setTableWith(beacons: beacons)
         
-//        let majors = beacons.map {"\($0.major)"}
-//        alert(title: "onEnter", message: majors.joined(separator: ", "))
-        
         beacons.forEach { showNotifHi(beacon: $0) }
     }
     
@@ -168,9 +143,6 @@ extension ViewController: BeaconManagerDelegate {
         print("__onExit")
         print(beacons)
         setTableWith(beacons: [])
-        
-//        let majors = beacons.map {"\($0.major)"}
-//        alert(title: "onExit", message: majors.joined(separator: ", "))
         
         beacons.forEach { showNotifBye(beacon: $0) }
     }

@@ -25,28 +25,12 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Monitoring Beacon/Code/BeaconManager.swift"
-            timestampString = "571854123.289582"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "169"
-            endingLineNumber = "169"
-            landmarkName = "locationManager(_:didDetermineState:for:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "Monitoring Beacon/ViewController.swift"
-            timestampString = "571854123.289643"
+            timestampString = "571895469.751513"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "158"
-            endingLineNumber = "158"
+            startingLineNumber = "136"
+            endingLineNumber = "136"
             landmarkName = "onEnter(beacons:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -58,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Monitoring Beacon/ViewController.swift"
-            timestampString = "571854123.289922"
+            timestampString = "571895469.751801"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "169"
-            endingLineNumber = "169"
+            startingLineNumber = "144"
+            endingLineNumber = "144"
             landmarkName = "onExit(beacons:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -74,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Monitoring Beacon/ViewController.swift"
-            timestampString = "571854123.290128"
+            timestampString = "571895469.751995"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "151"
-            endingLineNumber = "151"
+            startingLineNumber = "129"
+            endingLineNumber = "129"
             landmarkName = "onDetected(beacons:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -90,12 +74,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Monitoring Beacon/ViewController.swift"
-            timestampString = "571854123.2903219"
+            timestampString = "571895469.752182"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "57"
-            endingLineNumber = "57"
-            landmarkName = "localPushNotif(notifID:title:body:)"
+            startingLineNumber = "58"
+            endingLineNumber = "58"
+            landmarkName = "localPushNotif(notifID:title:body:category:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
